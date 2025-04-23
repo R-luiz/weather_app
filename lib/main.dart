@@ -27,13 +27,17 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {});
     });
   }
 
@@ -51,12 +55,12 @@ class _HomePageState extends State<HomePage> {
         SnackBar(content: Text('Searching for: ${_searchController.text}')),
       );
       _searchController.clear(); // Clear the search field after searching
-
     }
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -98,7 +102,23 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: const Center(child: Text('Empty Weather App - Ready to build')),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          Center(
+            child: Text(
+              'Currently Tab Content',
+              style: TextStyle(fontSize: 24),
+            ),
+          ),
+          Center(
+            child: Text('Today Tab Content', style: TextStyle(fontSize: 24)),
+          ),
+          Center(
+            child: Text('Weekly Tab Content', style: TextStyle(fontSize: 24)),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
@@ -111,9 +131,11 @@ class _HomePageState extends State<HomePage> {
             label: 'Weekly',
           ),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: _tabController.index,
         selectedItemColor: Colors.blue,
-        onTap: _onItemTapped,
+        onTap: (index) {
+          _tabController.animateTo(index);
+        },
       ),
     );
   }
