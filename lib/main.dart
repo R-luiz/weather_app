@@ -32,6 +32,9 @@ class _HomePageState extends State<HomePage>
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
 
+  // State variable to track the displayed text
+  String _displayText = '';
+
   @override
   void initState() {
     super.initState();
@@ -42,15 +45,23 @@ class _HomePageState extends State<HomePage>
   }
 
   void _getLocation() {
-    // TODO: Implement geolocation functionality
+    // Update state for geolocation
+    setState(() {
+      _displayText = "Geolocation";
+    });
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Getting current location...')),
     );
   }
 
   void _searchLocation() {
-    // TODO: Implement search functionality
+    // Implement search functionality
     if (_searchController.text.isNotEmpty) {
+      setState(() {
+        _displayText = _searchController.text;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Searching for: ${_searchController.text}')),
       );
@@ -63,6 +74,31 @@ class _HomePageState extends State<HomePage>
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  // Helper method to build tab content
+  Widget _buildTabContent(String tabName) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            tabName,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          if (_displayText.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Text(
+                _displayText,
+                style: const TextStyle(fontSize: 24),
+                textAlign: TextAlign.center,
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -104,19 +140,10 @@ class _HomePageState extends State<HomePage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          Center(
-            child: Text(
-              'Currently Tab Content',
-              style: TextStyle(fontSize: 24),
-            ),
-          ),
-          Center(
-            child: Text('Today Tab Content', style: TextStyle(fontSize: 24)),
-          ),
-          Center(
-            child: Text('Weekly Tab Content', style: TextStyle(fontSize: 24)),
-          ),
+        children: [
+          _buildTabContent('Currently'),
+          _buildTabContent('Today'),
+          _buildTabContent('Weekly'),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
